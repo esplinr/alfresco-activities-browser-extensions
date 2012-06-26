@@ -1,0 +1,6 @@
+content   alfresco-activities                 content/
+skin      alfresco-activities   classic/1.0   skin/
+locale    alfresco-activities   en-US         locale/en-US/
+
+style     chrome://global/content/customizeToolbar.xul chrome://alfresco-activities/content/button.css
+overlay	  chrome://browser/content/browser.xul         chrome://alfresco-activities/content/button.xul

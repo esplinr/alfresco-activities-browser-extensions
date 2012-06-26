@@ -1,0 +1,43 @@
+<project name="Alfresco-Activities-Chrome" basedir="." default="dist">
+
+    <property file="../build.properties"/>
+    <property file="./build.properties"/>
+
+	<target name="clean" description="Remove the build directory">
+	    <delete dir="${build.dir}"/>
+    </target>
+	
+	<target name="init" description="Sets up the build tree">
+		<mkdir dir="${assemble.dir}"/>
+		<mkdir dir="${assemble.folder}"/>
+		<mkdir dir="${deploy.dir}"/>
+	</target>
+	
+	<target name="assemble" depends="init" description="Construct the assembled extension">
+	    <copy file="${source.dir}/manifest.json" todir="${assemble.folder}">
+		    <filterset>
+			    <filter token="VERSION" value="${application.version}"/>
+				<filter token="APPLICATION_NAME" value="${application.name}"/>
+                <filter token="HTTP_DOMAIN" value="${http.domain}"/>
+                <filter token="HTTPS_DOMAIN" value="${https.domain}"/>
+			</filterset>
+		</copy>
+        <copy file="${common.js.dir}/jquery-1.7.2.min.js" todir="${assemble.folder}"/>
+		<copy todir="${assemble.folder}">
+		    <fileset dir="${source.css.dir}"/>
+			<fileset dir="${source.js.dir}"/>
+			<fileset dir="${source.html.dir}"/>
+			<fileset dir="${common.images.dir}"/>
+            <filterset>
+                <filter token="HTTP_DOMAIN" value="${http.domain}"/>
+                <filter token="HTTPS_DOMAIN" value="${https.domain}"/>
+			</filterset>
+		</copy>
+	</target>
+	
+	<target name="dist" depends="assemble" description="Builds the installation file">
+	    <zip destfile="${deploy.dir}/${deploy.fileName}">
+		    <zipfileset dir="${assemble.dir}"/>
+		</zip>
+	</target>
+</project>

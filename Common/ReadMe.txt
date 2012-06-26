@@ -1,0 +1,1 @@
+This folder will contain all the files that are common to all browser versions

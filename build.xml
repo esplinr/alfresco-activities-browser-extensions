@@ -1,0 +1,13 @@
+<project name="Alfresco-Activities-Plugins" basedir="." default="dist">
+	<property file="./build.properties"/>
+
+    <target name="clean" description="Cleans all sub-projects">
+		<ant antfile="${chrome.module}/build.xml" target="clean" inheritAll="false"/>
+		<ant antfile="${firefox.module}/build.xml" target="clean" inheritAll="false"/>
+	</target>
+
+	<target name="dist" description="Builds all sub-projects">
+		<ant antfile="${chrome.module}/build.xml" target="dist" inheritAll="false"/>
+		<ant antfile="${firefox.module}/build.xml" target="dist" inheritAll="false"/>
+	</target>
+</project>

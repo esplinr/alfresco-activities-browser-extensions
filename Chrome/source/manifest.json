@@ -1,0 +1,26 @@
+{
+    "name": "@APPLICATION_NAME@",
+    "icons": { 
+	    "16": "alfresco16.png",
+        "48": "alfresco48.png",
+		"32": "alfresco32.png",
+        "128": "alfresco128.png" 
+	},
+    "web_accessible_resources" : ["alfresco32.png"],
+    "version": "@VERSION@",
+    "manifest_version": 2,
+    "description": "Extension providing notifications and quick access to activities occurring in Alfrsco",
+    "background": {
+        "scripts": ["background.js"]
+    },
+	"browser_action": {
+        "default_icon": "alfresco19.png",
+	    "default_popup" : "activities.html"
+    },
+    "permissions": [
+        "notifications",
+        "tabs", 
+	    "@HTTP_DOMAIN@", 
+	    "@HTTPS_DOMAIN@"
+    ]
+}
