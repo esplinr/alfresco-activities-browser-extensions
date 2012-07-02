@@ -28,16 +28,18 @@
 		    <fileset dir="${source.css.dir}"/>
 			<fileset dir="${source.js.dir}"/>
 			<fileset dir="${source.xul.dir}"/>
-			<fileset dir="${common.images.dir}"/>
             <filterset>
                 <filter token="HTTP_DOMAIN" value="${http.domain}"/>
                 <filter token="HTTPS_DOMAIN" value="${https.domain}"/>
 			</filterset>
 		</copy>
+		<copy todir="${assemble.content.dir}">
+			<fileset dir="${common.images.dir}"/>
+        </copy>		
 	</target>
 	
 	<target name="dist" depends="assemble" description="Builds the installation file">
-	    <zip destfile="${deploy.dir}/${deploy.fileName}">
+	    <zip destfile="${deploy.dir}/${deploy.fileName}" compress="false">
 		    <zipfileset dir="${assemble.dir}"/>
 		</zip>
 	</target>
