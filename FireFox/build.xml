@@ -21,6 +21,7 @@
 			<filterset>
 			    <filter token="VERSION" value="${application.version}"/>
 				<filter token="APPLICATION_NAME" value="${application.name}"/>
+				<filter token="APPLICATION_ID" value="${application.id}"/>
 			</filterset>
 		</copy>
         <copy file="${common.js.dir}/jquery-1.7.2.min.js" todir="${assemble.content.dir}"/>
