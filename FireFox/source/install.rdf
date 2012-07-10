@@ -11,7 +11,7 @@
     <em:version>@VERSION@</em:version>
     <em:creator>Dave Draper</em:creator>
     <em:homepageURL></em:homepageURL>
-	<em:iconURL>chrome://alfresco-activities/content/alfresco32.png</em:iconURL>
+	<em:iconURL>chrome://@PACKAGE_NAME@/content/alfresco32.png</em:iconURL>
     <em:type>2</em:type>
 
     <!-- Mozilla Firefox -->

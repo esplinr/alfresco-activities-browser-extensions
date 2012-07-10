@@ -1,5 +1,5 @@
 #alfresco-activities-button  {
-    list-style-image: url("chrome://alfresco-activities/content/alfresco19.png");
+    list-style-image: url("chrome://@PACKAGE_NAME@/content/alfresco19.png");
 }
 
 .alfreso-activities-panel {

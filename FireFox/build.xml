@@ -16,12 +16,17 @@
 	</target>
 	
 	<target name="assemble" depends="init" description="Construct the assembled extension">
-	    <copy file="${source.dir}/chrome.manifest" todir="${assemble.dir}"/>
+	    <copy file="${source.dir}/chrome.manifest" todir="${assemble.dir}">
+			<filterset>
+				<filter token="PACKAGE_NAME" value="${application.package.name}"/>
+			</filterset>
+	    </copy>
 		<copy file="${source.dir}/install.rdf" todir="${assemble.dir}">
 			<filterset>
 			    <filter token="VERSION" value="${application.version}"/>
 				<filter token="APPLICATION_NAME" value="${application.name}"/>
 				<filter token="APPLICATION_ID" value="${application.id}"/>
+				<filter token="PACKAGE_NAME" value="${application.package.name}"/>
 			</filterset>
 		</copy>
         <copy file="${common.js.dir}/jquery-1.7.2.min.js" todir="${assemble.content.dir}"/>
@@ -32,6 +37,7 @@
             <filterset>
                 <filter token="HTTP_DOMAIN" value="${http.domain}"/>
                 <filter token="HTTPS_DOMAIN" value="${https.domain}"/>
+				<filter token="PACKAGE_NAME" value="${application.package.name}"/>
 			</filterset>
 		</copy>
 		<copy todir="${assemble.content.dir}">

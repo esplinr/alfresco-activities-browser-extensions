@@ -34,7 +34,7 @@
     {
 		window.content.localStorage.lastNotificationSize = -1; // No notifications so far
 		this.badge = document.getElementById("alfresco-activities-button-desc");
-	    this.worker = new Worker("chrome://alfresco-activities/content/background.js");
+	    this.worker = new Worker("chrome://@PACKAGE_NAME@/content/background.js");
 		var self = this;  
 		this.worker.onmessage = function(event) {  
 		  self.onworkermessage.call(self, event);  
@@ -133,7 +133,7 @@
 			if (webkitNotifications)
 			{
 				var notification = webkitNotifications.createNotification(
-					"chrome://alfresco-activities/content/alfresco32.png",
+					"chrome://@PACKAGE_NAME@/content/alfresco32.png",
 					"New Alfresco Activities",
 					msg
 				);

@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/css" href="chrome://alfresco-activities/content/button.css"?>
+<?xml-stylesheet type="text/css" href="chrome://@PACKAGE_NAME@/content/button.css"?>
 <?xml-stylesheet type="text/css" href="@HTTPS_DOMAIN@share/res/css/base.css"?>
 <?xml-stylesheet type="text/css" href="@HTTPS_DOMAIN@share/res/themes/default/presentation.css"?>
 <?xml-stylesheet type="text/css" href="@HTTPS_DOMAIN@share/res/components/dashlets/activities.css"?>
 
 <!DOCTYPE overlay >
 <overlay id="custombutton-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-    <script type="application/javascript" src="chrome://alfresco-activities/content/jquery-1.7.2.min.js"/>
-	<script type="application/javascript" src="chrome://alfresco-activities/content/alfresco_activities.js"/>
-    <script type="application/javascript" src="chrome://alfresco-activities/content/button.js"/>
+    <script type="application/javascript" src="chrome://@PACKAGE_NAME@/content/jquery-1.7.2.min.js"/>
+	<script type="application/javascript" src="chrome://@PACKAGE_NAME@/content/alfresco_activities.js"/>
+    <script type="application/javascript" src="chrome://@PACKAGE_NAME@/content/button.js"/>
 
 	<hbox hidden="true">
         <html:canvas xmlns:html="http://www.w3.org/1999/xhtml" id="toolbar_button_canvas" width="24" height="24"></html:canvas>
