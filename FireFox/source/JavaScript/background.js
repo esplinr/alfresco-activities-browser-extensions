@@ -84,9 +84,6 @@ function startRequest()
 
 function checkActivities(onSuccess, onError) 
 {
-    //makeXhr("https://ts.alfresco.com/share/proxy/alfresco/api/activities/feed/user?format=json&exclUser=true", onSuccess, onError);
-    //makeXhr("https://ts.alfresco.com/share/proxy/alfresco/api/activities/feed/user?format=json", onSuccess, onError); // Shows your own notifications.
-	//makeXhr("http://localhost:8081/share/proxy/alfresco/api/activities/feed/user?format=json", onSuccess, onError); // Shows your own notifications.
     var suffix = "share/proxy/alfresco/api/activities/feed/user?format=json&exclUser=true";
       if (domain == "https://my.alfresco.com/")
       {
@@ -147,9 +144,8 @@ function makeXhr(url, onSuccess, onError)
             }
 			
 			// If we're not still waiting for a response and we haven't had a successful
-			// outcome then an error must have occurred so we need to call the supplied
-			// error handling function...
-            handleError();
+			// outcome then try again...
+            makeXhr(url, onSuccess, onError);
         }
 
 		// Override the default error handling function to call the one passed as

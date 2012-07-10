@@ -34,8 +34,8 @@ var domain = "@HTTPS_DOMAIN@"; // This should NOT say HTTP_DOMAIN - it should be
 //var pollIntervalMin = 1000 * 5;  // 5 seconds
 //var pollIntervalMax = 1000 * 30; // 30 seconds
 
-//var pollIntervalMin = 1000 * 60;  // 1 minute
-//var pollIntervalMax = 1000 * 60 * 5;  // 5 mins
+var pollIntervalMin = 1000 * 60;  // 1 minute
+var pollIntervalMax = 1000 * 60 * 5;  // 5 mins
 var requestFailureCount = 0;  // used for exponential backoff
 var requestTimeout = 1000 * 2;  // 5 seconds
 var requestTimerId;
@@ -129,8 +129,6 @@ function scheduleRequest() {
 
 function checkActivities(onSuccess, onError) 
 {
-  //makeXhr(localStorage["share-url"] + "/proxy/alfresco/api/activities/feed/user?format=json&exclUser=true", onSuccess, onError);
-  //makeXhr("https://ts.alfresco.com/share/proxy/alfresco/api/activities/feed/user?format=json", onSuccess, onError); // Shows your own notifications.
   var suffix = "share/proxy/alfresco/api/activities/feed/user?format=json&exclUser=true";
   if (domain == "https://my.alfresco.com/")
   {
@@ -186,7 +184,7 @@ function makeXhr(url, onSuccess, onError)
 		handleSuccess(xhr.responseText);
 		return;
       }
-      handleError();
+      makeXhr(url, onSuccess, onError);
     }
 
     xhr.onerror = function(error) 

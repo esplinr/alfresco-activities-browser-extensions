@@ -72,7 +72,6 @@ function getActivities()
 	
 	function onSuccess(html) 
 	{
-		//html = html.replace(/"\/share\//g, "\"http://ts.alfresco.com/share/");
         var replaceString = "\"" + domain + "share/";
         html = html.replace(/"\/share\//g, replaceString);
 		setContent(html);
@@ -80,11 +79,9 @@ function getActivities()
 	function onError(error)
 	{
 		// Need to show some kind of failed icon
-		setContent("<html:span>Unable to activities - please click icon to try again</html:span>");
+		setContent("<html:span>Unable to load activities - please click icon to try again</html:span>");
 		Application.console.log("An error occurred getting the activities");  
 	}
-	//makeXhr("https://ts.alfresco.com/share/service/components/dashlets/activities/list?site=&mode=user&dateFilter=28&userFilter=others&activityFilter=", onSuccess, onError);
-	//makeXhr("http://localhost:8081/share/service/components/dashlets/activities/list?site=&mode=user&dateFilter=28&userFilter=all&activityFilter=", onSuccess, onError);
     makeXhr(domain + "share/service/components/dashlets/activities/list?site=&mode=user&dateFilter=28&userFilter=others&activityFilter=", onSuccess, onError);
 	return true;
 }

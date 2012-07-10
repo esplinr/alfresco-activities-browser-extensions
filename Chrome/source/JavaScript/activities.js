@@ -42,8 +42,6 @@ function getActivities()
   setContent("<span>Loading...</span>");
   function onSuccess(html) 
   {
-    //html = html.replace(/"\/share\//g, "\"http://ts.alfresco.com/share/");
-    //var replaceString = "\"" + localStorage["share-url"] + "/"
     var replaceString = "\"" + domain + "share/";
 	html = html.replace(/"\/share\//g, replaceString);
 	setContent(html);
@@ -51,10 +49,9 @@ function getActivities()
   function onError()
   {
 	// Need to show some kind of failed icon
-	setContent("<span>Unable to activities - please click icon to try again</span>");
+	setContent("<span>Unable to load activities - please click icon to try again</span>");
 	console.error("An error occurred getting the activities");  
   }
-  //chrome.extension.getBackgroundPage().makeXhr("https://ts.alfresco.com/share/service/components/dashlets/activities/list?site=&mode=user&dateFilter=28&userFilter=others&activityFilter=", onSuccess, onError);
   chrome.extension.getBackgroundPage().makeXhr(domain + "share/service/components/dashlets/activities/list?site=&mode=user&dateFilter=28&userFilter=others&activityFilter=", onSuccess, onError);
 }
 
