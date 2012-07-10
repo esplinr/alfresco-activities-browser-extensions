@@ -21,7 +21,7 @@
  * button.
  */
 
- var AlfrescoActivities = {
+ var @ID_PREFIX@worker = {
 
     worker: null,
 	lastNotification:  null,
@@ -32,8 +32,8 @@
      */
     startup: function()
     {
-		window.content.localStorage.lastNotificationSize = -1; // No notifications so far
-		this.badge = document.getElementById("alfresco-activities-button-desc");
+		window.content.localStorage.@ID_PREFIX@lastNotificationSize = -1; // No notifications so far
+		this.badge = document.getElementById("@ID_PREFIX@button-desc");
 	    this.worker = new Worker("chrome://@PACKAGE_NAME@/content/background.js");
 		var self = this;  
 		this.worker.onmessage = function(event) {  
@@ -86,17 +86,17 @@
 		if (json.length > 0)
 		{
 			var latestPost = json[0].id;
-			window.content.localStorage.latestPost = latestPost;
-			if (!window.content.localStorage.lastAcknowledgedPost)
+			window.content.localStorage.@ID_PREFIX@latestPost = latestPost;
+			if (!window.content.localStorage.@ID_PREFIX@lastAcknowledgedPost)
 			{
-				window.content.localStorage.lastAcknowledgedPost = latestPost;
+				window.content.localStorage.@ID_PREFIX@lastAcknowledgedPost = latestPost;
 			}
 		  
-			if (latestPost != window.content.localStorage.lastAcknowledgedPost)
+			if (latestPost != window.content.localStorage.@ID_PREFIX@lastAcknowledgedPost)
 			{
 				for (unreadPosts=1; unreadPosts<json.length; unreadPosts++)
 				{
-					if (json[unreadPosts].id == window.content.localStorage.lastAcknowledgedPost)
+					if (json[unreadPosts].id == window.content.localStorage.@ID_PREFIX@lastAcknowledgedPost)
 					{
 						unreadPosts;
 						break;
@@ -114,7 +114,7 @@
 	{
 		// Only show a notification if there are more activities since the last notification...	
          
-		if (unreadPosts > window.content.localStorage.lastNotificationSize)
+		if (unreadPosts > window.content.localStorage.@ID_PREFIX@lastNotificationSize)
 		{
 			// Hide any previously shown notification pop-up...
 			if (this.lastNotification) 
@@ -141,10 +141,10 @@
 			    this.lastNotification = notification;
 			}
 			
-			window.content.localStorage.lastNotificationSize = unreadPosts;
+			window.content.localStorage.@ID_PREFIX@lastNotificationSize = unreadPosts;
 		}
 	}	
 }
 
-window.addEventListener("load", function(e) { AlfrescoActivities.startup(); }, false);
-window.addEventListener("unload", function(e) { AlfrescoActivities.shutdown(); }, false);
+window.addEventListener("load", function(e) { @ID_PREFIX@worker.startup(); }, false);
+window.addEventListener("unload", function(e) { @ID_PREFIX@worker.shutdown(); }, false);

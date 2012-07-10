@@ -1,4 +1,4 @@
-#alfresco-activities-button  {
+#@ID_PREFIX@button  {
     list-style-image: url("chrome://@PACKAGE_NAME@/content/alfresco19.png");
 }
 

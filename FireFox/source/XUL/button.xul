@@ -5,27 +5,27 @@
 <?xml-stylesheet type="text/css" href="@HTTPS_DOMAIN@share/res/components/dashlets/activities.css"?>
 
 <!DOCTYPE overlay >
-<overlay id="custombutton-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+<overlay id="@ID_PREFIX@custombutton-overlay" xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
     <script type="application/javascript" src="chrome://@PACKAGE_NAME@/content/jquery-1.7.2.min.js"/>
 	<script type="application/javascript" src="chrome://@PACKAGE_NAME@/content/alfresco_activities.js"/>
     <script type="application/javascript" src="chrome://@PACKAGE_NAME@/content/button.js"/>
 
 	<hbox hidden="true">
-        <html:canvas xmlns:html="http://www.w3.org/1999/xhtml" id="toolbar_button_canvas" width="24" height="24"></html:canvas>
+        <html:canvas xmlns:html="http://www.w3.org/1999/xhtml" id="@ID_PREFIX@toolbar_button_canvas" width="24" height="24"></html:canvas>
     </hbox>
 	
     <!-- Firefox -->
     <toolbarpalette id="BrowserToolbarPalette" xmlns:html="http://www.w3.org/1999/xhtml">
-		<toolbarbutton id="alfresco-activities-button"
+		<toolbarbutton id="@ID_PREFIX@button"
 					   label="Alfresco Activities"
 					   tooltiptext="Click to load recent activities on Alfresco"
 					   class="toolbarbutton-1 chromeclass-toolbar-additional alfresco-activities-button"
-					   popup="activities">
-			<panel id="activities" onpopupshowing="getActivities();" position="after_end" width="450" height="300">
-				<iframe id="alfresco-activities-frame" class="alfresco_activities" type="content" width="450" height="300"></iframe>
+					   popup="@ID_PREFIX@activities">
+			<panel id="@ID_PREFIX@activities" onpopupshowing="@ID_PREFIX@getActivities();" position="after_end" width="450" height="300">
+				<iframe id="@ID_PREFIX@frame" class="alfresco_activities" type="content" width="450" height="300"></iframe>
 			</panel>	
             <image></image>
-            <description id="alfresco-activities-button-desc">0</description>			
+            <description id="@ID_PREFIX@button-desc">0</description>			
 		</toolbarbutton>
     </toolbarpalette>
  

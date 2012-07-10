@@ -38,6 +38,7 @@
                 <filter token="HTTP_DOMAIN" value="${http.domain}"/>
                 <filter token="HTTPS_DOMAIN" value="${https.domain}"/>
 				<filter token="PACKAGE_NAME" value="${application.package.name}"/>
+				<filter token="ID_PREFIX" value="${application.id.prefix}"/>
 			</filterset>
 		</copy>
 		<copy todir="${assemble.content.dir}">
