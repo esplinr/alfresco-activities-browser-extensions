@@ -39,7 +39,7 @@ var pollIntervalMax = 1000 * 60 * 5;  // 5 mins
 var requestFailureCount = 0;  // used for exponential backoff
 var requestTimeout = 1000 * 2;  // 5 seconds
 var requestTimerId;
-
+var loggedOut = false;
 lastNotification = null;
 
 function init() {
@@ -102,6 +102,10 @@ function startRequest() {
 	      }
 		  chrome.browserAction.setBadgeText({"text": "" + unreadPosts});
 	    }
+		else
+	    {
+		  chrome.browserAction.setBadgeText({"text": "0"});
+		}
 	  }
 	  scheduleRequest();
     },
@@ -111,6 +115,7 @@ function startRequest() {
     }
   );
 }
+
 
 
 // This is stolen straight from the GMail checker...
@@ -178,13 +183,25 @@ function makeXhr(url, onSuccess, onError)
 	  {
         return;
       }
+	  else if (xhr.status == 401)
+	  {
+	      loggedOut = true;
+		  chrome.browserAction.setBadgeText({"text": "X"});
+	  }
+	  else if (xhr.status == 200)
+	  {
+	      loggedOut = false;
+	  }
 
       if (xhr.responseText) 
 	  {
 		handleSuccess(xhr.responseText);
 		return;
       }
-      makeXhr(url, onSuccess, onError);
+      if (!loggedOut)
+	  {
+	     makeXhr(url, onSuccess, onError);
+	  }
     }
 
     xhr.onerror = function(error) 

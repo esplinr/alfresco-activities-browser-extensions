@@ -30,6 +30,7 @@ var @ID_PREFIX@firstTime = true;
 var @ID_PREFIX@requestFailureCount = 0;  // used for exponential backoff
 var @ID_PREFIX@requestTimeout = 1000 * 2;  // 5 seconds
 var @ID_PREFIX@requestTimerId;
+var @ID_PREFIX@loggedOut = false;
 
 function @ID_PREFIX@setContent(content)
 {
@@ -131,6 +132,15 @@ function @ID_PREFIX@makeXhr(url, onSuccess, onError)
 	        { 
                 return;
             }
+			else if (xhr.status == 401)
+			{
+				// The user is not authenticated. Disable polling.
+				@ID_PREFIX@loggedOut = true;
+			}
+			else if (xhr.status == 200)
+			{
+				@ID_PREFIX@loggedOut = false;
+			}
 
 			// If there is response text then call the success function with the 
 			// contents of the response.

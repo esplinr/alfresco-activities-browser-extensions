@@ -39,6 +39,8 @@ var requestFailureCount = 0;  // used for exponential backoff
 var requestTimeout = 1000 * 2;  // 5 seconds
 var requestTimerId;
 
+var loggedOut = false;
+
 function scheduleRequest() 
 {
     if (requestTimerId) 
@@ -95,76 +97,92 @@ function checkActivities(onSuccess, onError)
 }
 function makeXhr(url, onSuccess, onError)
 {
-    var xhr = new XMLHttpRequest();
-    var abortTimerId = setTimeout(function() 
-    { 
-        xhr.abort();  // synchronously calls onreadystatechange
-    }, requestTimeout);
-
-    function handleSuccess(count) 
+    if (!loggedOut)
     {
-        requestFailureCount = 0;
-        clearTimeout(abortTimerId);
-        if (onSuccess)
-        {
-            onSuccess(count);
-	    }
-    }
+	    var xhr = new XMLHttpRequest();
+		var abortTimerId = setTimeout(function() 
+		{ 
+			xhr.abort();  // synchronously calls onreadystatechange
+		}, requestTimeout);
 
-    var invokedErrorCallback = false;
-    function handleError() 
-    {
-        ++requestFailureCount;
-        clearTimeout(abortTimerId);
-        if (onError && !invokedErrorCallback)
-	    {
-            onError();
-	    }
-        invokedErrorCallback = true;
-    }
+		function handleSuccess(count) 
+		{
+			requestFailureCount = 0;
+			clearTimeout(abortTimerId);
+			if (onSuccess)
+			{
+				onSuccess(count);
+			}
+		}
 
-    try 
-	{
-	    // Handle changes in the response...
-        xhr.onreadystatechange = function()
-	    {
-		    // Still waiting for the response to complete...
-            if (xhr.readyState != 4)
-	        { 
-                return;
-            }
+		var invokedErrorCallback = false;
+		function handleError() 
+		{
+			++requestFailureCount;
+			clearTimeout(abortTimerId);
+			if (onError && !invokedErrorCallback)
+			{
+				onError();
+			}
+			invokedErrorCallback = true;
+		}
 
-			// If there is response text then call the success function with the 
-			// contents of the response.
-            if (xhr.responseText) 
-	        {
-			    //Application.console.log(">> Response text:" + xhr.responseText);
-		        handleSuccess(xhr.responseText);
-		        return;
-            }
-			
-			// If we're not still waiting for a response and we haven't had a successful
-			// outcome then try again...
-            makeXhr(url, onSuccess, onError);
-        }
+		try 
+		{
+			// Handle changes in the response...
+			xhr.onreadystatechange = function()
+			{
+				// Still waiting for the response to complete...
+				if (xhr.readyState != 4)
+				{ 
+					return;
+				}
+				else if (xhr.status == 401)
+				{
+					// The user is not authenticated. Disable polling.
+					loggedOut = true;
+				}
+				else if (xhr.status == 200)
+				{
+				    loggedOut = false;
+				}
 
-		// Override the default error handling function to call the one passed as
-		// an argument...
-        xhr.onerror = function(error) 
-	    {
-		    postMessage({ type: "Failure",
-			              error: error});
-            handleError();
-        }
+				// If there is response text then call the success function with the 
+				// contents of the response.
+				if (xhr.responseText) 
+				{
+					//Application.console.log(">> Response text:" + xhr.responseText);
+					
+					handleSuccess(xhr.responseText);
+					return;
+				}
+				// If we're not still waiting for a response and we haven't had a successful
+				// outcome then try again...
+				if (!loggedOut)
+				{
+					 makeXhr(url, onSuccess, onError);
+				}
+			}
 
-		// Make the request...
-        xhr.open("GET", url, true);
-        xhr.send(null);
-    } 
-    catch(e) 
-    {
-        handleError();
-    }
+			// Override the default error handling function to call the one passed as
+			// an argument...
+			xhr.onerror = function(error) 
+			{
+				postMessage({ type: "Failure",
+							  error: error});
+				handleError();
+			}
+
+			// Make the request...
+			xhr.open("GET", url, true);
+			xhr.send(null);
+		} 
+		catch(e) 
+		{
+			handleError();
+		}
+	}
+    
 }
 
 init();
