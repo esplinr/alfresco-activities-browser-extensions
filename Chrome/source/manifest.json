@@ -1,5 +1,6 @@
 {
     "name": "@APPLICATION_NAME@",
+	"update_url": "@UPDATE_URL@",
     "icons": { 
 	    "16": "alfresco16.png",
         "48": "alfresco48.png",

@@ -1,25 +1,38 @@
 <project name="Alfresco-Activities-Chrome" basedir="." default="dist">
 
-    <property file="../build.properties"/>
-    <property file="./build.properties"/>
 
-	<target name="clean" description="Remove the build directory">
-	    <delete dir="${build.dir}"/>
-    </target>
-	
-	<target name="init" description="Sets up the build tree">
+	<target name="dist" description="Builds the installation file">
+	    <!-- The private.build.properties file should contain the following properties:
+		     "chrome.executable" - the location of your Chrome.exe file
+			 "updates.folder" - the folder where your *_updates.xml and *.crx files should be copied
+		     "working.directory" - the folder where this project is located
+		-->
+	    <property file="./private.build.properties"/>
+	    <property file="./${props}"/>
+        <property file="./build.properties"/>
+	    <property file="../build.properties"/>
+
+	    <echo message="Application Name='${application.name}'"/>
+		<echo message="Application ID='${application.id}'"/>
+		<echo message="App ID='${appid}'"/>
+		<echo message="Codebase='${codebase}'"/>
+		<echo message="Update URL='${update_url}'"/>
+		<echo message="HTTP Domain='${http.domain}'"/>
+		<echo message="HTTPS Domain='${https.domain}'"/>
+		<echo message="Version='${application.version}'"/>
+		<echo message=""/>
+		<echo message=""/>
+		<delete dir="${build.dir}"/>
 		<mkdir dir="${assemble.dir}"/>
 		<mkdir dir="${assemble.folder}"/>
 		<mkdir dir="${deploy.dir}"/>
-	</target>
-	
-	<target name="assemble" depends="init" description="Construct the assembled extension">
 	    <copy file="${source.dir}/manifest.json" todir="${assemble.folder}">
 		    <filterset>
 			    <filter token="VERSION" value="${application.version}"/>
 				<filter token="APPLICATION_NAME" value="${application.name}"/>
                 <filter token="HTTP_DOMAIN" value="${http.domain}"/>
                 <filter token="HTTPS_DOMAIN" value="${https.domain}"/>
+				<filter token="UPDATE_URL" value="${update_url}"/>
 			</filterset>
 		</copy>
         <copy file="${common.js.dir}/jquery-1.7.2.min.js" todir="${assemble.folder}"/>
@@ -35,11 +48,41 @@
 		<copy todir="${assemble.folder}">
 			<fileset dir="${common.images.dir}"/>
         </copy>		
+	
+	    <!-- Copy an existing key if one exists, don't fail if it doesn't exist -->
+	    <copy file="${source.dir}/${pem.file.name}" todir="${assemble.dir}" failonerror="false"/>
+		<!-- Build without a key - this will generate a key if one didn't exist -->
+	    <exec executable="${chrome.executable}" spawn="false">
+            <arg value="${package.location.arg}"/>
+			<arg value="--no-message-box" />
+        </exec>
+		<!-- Copy a generated key back to the source directory -->
+		<copy file="${assemble.dir}/${pem.file.name}" todir="${source.dir}"/>
+		<exec executable="${chrome.executable}" spawn="false">
+            <arg value="${package.location.arg}"/>
+			<arg value="${package.pem.arg}"/>
+			<arg value="--no-message-box" />
+        </exec>
+		<copy file="${source.dir}/updates.xml" tofile="${updates.folder}/${application.name}_updates.xml" overwrite="true" verbose="true">
+		    <filterset>
+			    <filter token="VERSION" value="${application.version}"/>
+				<filter token="APP_ID" value="${appid}"/>
+				<filter token="CODE_BASE" value="${codebase}"/>
+			</filterset>
+		</copy>
+		<copy file="${assemble.dir}/${crx.file.name}" todir="${updates.folder}" overwrite="true" verbose="true"/>
 	</target>
 	
-	<target name="dist" depends="assemble" description="Builds the installation file">
-	    <zip destfile="${deploy.dir}/${deploy.fileName}" compress="false">
-		    <zipfileset dir="${assemble.dir}"/>
-		</zip>
+	<target name="CloudExtension">
+	    <antcall target="dist">
+		    <param name="props" value="cloud.build.properties"/>
+		</antcall>
 	</target>
+	
+	<target name="TSExtension">
+	    <antcall target="dist">
+		    <param name="props" value="ts.build.properties"/>
+		</antcall>
+	</target>
+	
 </project>
