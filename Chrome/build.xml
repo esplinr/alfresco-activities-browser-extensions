@@ -63,7 +63,14 @@
 			<arg value="${package.pem.arg}"/>
 			<arg value="--no-message-box" />
         </exec>
-		<copy file="${source.dir}/updates.xml" tofile="${updates.folder}/${application.name}_updates.xml" overwrite="true" verbose="true">
+	</target>
+	
+	<target name="publish">
+	    <property file="./private.build.properties"/>
+	    <property file="./${props}"/>
+        <property file="./build.properties"/>
+	    <property file="../build.properties"/>
+	    <copy file="${source.dir}/updates.xml" tofile="${updates.folder}/${application.name}_updates.xml" overwrite="true" verbose="true">
 		    <filterset>
 			    <filter token="VERSION" value="${application.version}"/>
 				<filter token="APP_ID" value="${appid}"/>
@@ -71,7 +78,8 @@
 			</filterset>
 		</copy>
 		<copy file="${assemble.dir}/${crx.file.name}" todir="${updates.folder}" overwrite="true" verbose="true"/>
-	</target>
+	</target> 
+	
 	
 	<target name="CloudExtension">
 	    <antcall target="dist">
@@ -85,4 +93,15 @@
 		</antcall>
 	</target>
 	
+	<target name="PublishCloudExtension" depends="CloudExtension">
+	    <antcall target="publish">
+		    <param name="props" value="cloud.build.properties"/>
+		</antcall>
+	</target>
+	
+	<target name="PublishTSExtension" depends="TSExtension">
+	    <antcall target="publish">
+		    <param name="props" value="ts.build.properties"/>
+		</antcall>
+	</target>
 </project>

@@ -13,7 +13,8 @@
     <em:homepageURL></em:homepageURL>
 	<em:iconURL>chrome://@PACKAGE_NAME@/content/alfresco32.png</em:iconURL>
     <em:type>2</em:type>
-
+	<em:updateURL>@UPDATE_URL@</em:updateURL>
+	<em:updateKey>@UPDATE_KEY@</em:updateKey>
     <!-- Mozilla Firefox -->
     <em:targetApplication>
       <Description>

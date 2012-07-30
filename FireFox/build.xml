@@ -1,21 +1,83 @@
 <project name="Alfresco-Activities-FireFox" basedir="." default="dist">
+    
+	<!-- Pre-requisites (Windows7)
+	    1. Install ActivePerl (http://www.activestate.com/activeperl/downloads)
+		2. Install the "Convert::ASN1" package (from PPM)
+        3. Download and copy the "RDF::Core" package (cannot be installed from PPM) http://search.cpan.org/CPAN/authors/id/D/DP/DPOKORNY/RDF-Core-0.51.tar.gz
+		4. Download unzip and place in ActivePerl bin directory (http://www2.cs.uidaho.edu/~jeffery/win32/unzip.exe)
+		5. Download uhuru.bat file (packed in mxtools.zip: http://www.softlights.net/files/mxtools.zip)
+	    6. Download OpenSSL (I used a verion included in OpenVPN)
+	-->
 
-    <property file="../build.properties"/>
-    <property file="./build.properties"/>
+    <target name="check-pem-exists">
+        <available property="pem.exists" file="${application.name}_keyfile.pem"/>
+    </target>
 
-	<target name="clean" description="Remove the build directory">
-	    <delete dir="${build.dir}"/>
+    <target name="create-pem" depends="check-pem-exists" unless="pem.exists">
+        <exec executable="openssl" spawn="false">
+            <arg value="genrsa"/>
+			<arg value="-out"/>
+            <arg value="${application.name}_keyfile.pem"/>
+            <arg value="1024"/>
+        </exec>
+    </target>
+    
+	<target name="check-pub-exists">
+        <available property="pub.exists" file="${application.name}_keyfile.pub"/>
     </target>
 	
-	<target name="init" description="Sets up the build tree">
-		<mkdir dir="${assemble.dir}"/>
+	<target name="create-pub" depends="check-pub-exists" unless="pub.exists">
+		<exec executable="openssl" spawn="false">
+            <arg value="rsa"/>
+			<arg value="-in"/>
+            <arg value="${application.name}_keyfile.pem"/>
+            <arg value="-pubout"/>
+            <arg value="-out"/>
+            <arg value="${application.name}_keyfile.pub"/>
+        </exec>
+    </target>
+	
+    <target name="setProps">
+       <!-- The private.build.properties file should contain the following properties:
+		     "sha.executable" - the location of a file to do sha sums
+			 "updates.folder" - the folder where your *_updates.xml and *.crx files should be copied
+		     "working.directory" - the folder where this project is located
+		-->
+        <property file="./private.build.properties"/>
+	    <property file="./${props}"/>
+        <property file="./build.properties"/>
+	    <property file="../build.properties"/>
+        <echo message="Application Name='${application.name}'"/>
+		<echo message="Application ID='${application.id}'"/>
+		<echo message="Assemble Directory='${assemble.dir}'"/>
+		<echo message="Update URL='${update_url}'"/>
+		<echo message="HTTP Domain='${http.domain}'"/>
+		<echo message="HTTPS Domain='${https.domain}'"/>
+		<echo message="Version='${application.version}'"/>
+		<echo message=""/>
+		<echo message=""/>
+    </target>
+    
+	<target name="dist" depends="setProps,create-pem,create-pub" description="Builds the installation file">
+        <delete dir="${build.dir}"/>
+        <mkdir dir="${assemble.dir}"/>
 		<mkdir dir="${assemble.content.dir}"/>
 		<mkdir dir="${assemble.locale.dir}"/>
 		<mkdir dir="${assemble.skin.dir}"/>
 		<mkdir dir="${deploy.dir}"/>
-	</target>
-	
-	<target name="assemble" depends="init" description="Construct the assembled extension">
+		<!-- Set the public key as a property to put in the intall.rdf -->
+		<loadresource property="public.key.file">
+		    <file file="${application.name}_keyfile.pub"/>
+        </loadresource>
+		<echo message="Public key file contents: ${public.key.file}"/>
+        <script language="javascript"><![CDATA[
+            var publicKeyFileContents = project.getProperty("public.key.file");
+            var publicKey = publicKeyFileContents.substring(27, 246);
+            project.setProperty("publicKey", publicKey);
+        ]]></script>
+        <echo message="Public Key is: ${publicKey}"/>
+		
+		<!-- Copy the files to the assemble location -->
 	    <copy file="${source.dir}/chrome.manifest" todir="${assemble.dir}">
 			<filterset>
 				<filter token="PACKAGE_NAME" value="${application.package.name}"/>
@@ -27,6 +89,8 @@
 				<filter token="APPLICATION_NAME" value="${application.name}"/>
 				<filter token="APPLICATION_ID" value="${application.id}"/>
 				<filter token="PACKAGE_NAME" value="${application.package.name}"/>
+                <filter token="UPDATE_URL" value="${update_url}"/>
+				<filter token="UPDATE_KEY" value="${publicKey}"/>
 			</filterset>
 		</copy>
         <copy file="${common.js.dir}/jquery-1.7.2.min.js" todir="${assemble.content.dir}"/>
@@ -43,12 +107,61 @@
 		</copy>
 		<copy todir="${assemble.content.dir}">
 			<fileset dir="${common.images.dir}"/>
-        </copy>		
-	</target>
-	
-	<target name="dist" depends="assemble" description="Builds the installation file">
-	    <zip destfile="${deploy.dir}/${deploy.fileName}" compress="false">
+        </copy>	
+		
+		<!-- Create the XPI file from the assemble directory -->
+		<property name="deploy.fileName" value="${application.name}.xpi"/>
+		<zip destfile="${deploy.dir}/${deploy.fileName}" compress="false">
 		    <zipfileset dir="${assemble.dir}"/>
 		</zip>
+
+		<!-- Create an update manifest from the XPI file -->
+        <property name="uhuru.key.arg" value="-k ${application.name}_keyfile.pem"/>
+		<property name="uhuru.output.arg" value="-o ${assemble.dir}/${application.name}_update.rdf"/>
+		<property name="uhuru.xpi.arg" value="${deploy.dir}/${deploy.fileName}"/>
+		<property name="uhuru.uri.arg" value="${update_link}"/>
+		<exec executable="cmd" spawn="false" failonerror="true">
+		    <!-- uhuru.path should be defined in the "private.build.properties" file and should
+			     contain the path to both ActivePerl and OpenSSL (and optionally unzip if it's not
+				 been placed into the ActivePerl bin directory -->
+            <env key="PATH" value="${uhuru.path}"/>
+            <arg line="/c uhura.bat ${uhuru.key.arg} ${uhuru.output.arg} ${uhuru.xpi.arg} ${uhuru.uri.arg}"/>
+        </exec>		
+	</target>
+    
+	<!-- Copy all the files to the publish location - this is separated so that publishing isn't done until 
+	     updates have been completely checked -->
+	<target name="publish">
+	    <property file="./private.build.properties"/>
+	    <property file="./${props}"/>
+        <property file="./build.properties"/>
+	    <property file="../build.properties"/>
+		<property name="deploy.fileName" value="${application.name}.xpi"/>
+	    <copy file="${assemble.dir}/${application.name}_update.rdf" todir="${updates.folder}" overwrite="true" verbose="true"/>
+        <copy file="${deploy.dir}/${deploy.fileName}" todir="${updates.folder}" overwrite="true" verbose="true"/>
+	</target> 
+	
+    <target name="CloudExtension">
+	    <antcall target="dist">
+		    <param name="props" value="cloud.build.properties"/>
+		</antcall>
+	</target>
+	
+	<target name="TSExtension">
+	    <antcall target="dist">
+		    <param name="props" value="ts.build.properties"/>
+		</antcall>
+	</target>
+	
+	<target name="PublishCloudExtension" depends="CloudExtension">
+	    <antcall target="publish">
+		    <param name="props" value="cloud.build.properties"/>
+		</antcall>
+	</target>
+	
+	<target name="PublishTSExtension" depends="TSExtension">
+	    <antcall target="publish">
+		    <param name="props" value="ts.build.properties"/>
+		</antcall>
 	</target>
 </project>

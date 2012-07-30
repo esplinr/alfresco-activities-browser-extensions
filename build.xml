@@ -8,6 +8,16 @@
 	<target name="dist" description="Builds all sub-projects">
 		<ant antfile="${chrome.module}/build.xml" target="CloudExtension" inheritAll="false"/>
 		<ant antfile="${chrome.module}/build.xml" target="TSExtension" inheritAll="false"/>
-		<ant antfile="${firefox.module}/build.xml" target="dist" inheritAll="false"/>
+		<ant antfile="${firefox.module}/build.xml" target="CloudExtension" inheritAll="false"/>
+		<ant antfile="${firefox.module}/build.xml" target="TSExtension" inheritAll="false"/>
 	</target>
+	
+	<target name="publish" description="Copy the files to the upload destination">
+		<ant antfile="${chrome.module}/build.xml" target="PublishCloudExtension" inheritAll="false"/>
+		<ant antfile="${chrome.module}/build.xml" target="PublishTSExtension" inheritAll="false"/>
+		<ant antfile="${firefox.module}/build.xml" target="PublishCloudExtension" inheritAll="false"/>
+		<ant antfile="${firefox.module}/build.xml" target="PublishTSExtension" inheritAll="false"/>
+	</target>
+	
+	
 </project>
