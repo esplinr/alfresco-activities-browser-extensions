@@ -137,31 +137,31 @@ function makeXhr(url, onSuccess, onError)
 				{ 
 					return;
 				}
-				else if (xhr.status == 401)
+				else if (xhr.status == 401 || xhr.status == 403)
 				{
 					// The user is not authenticated. Disable polling.
 					loggedOut = true;
+                    handleError();
 				}
 				else if (xhr.status == 200)
 				{
 				    loggedOut = false;
+                    if (xhr.responseText) 
+                    {
+                        handleSuccess(xhr.responseText);
+                        return;
+                    }       
 				}
-
-				// If there is response text then call the success function with the 
-				// contents of the response.
-				if (xhr.responseText) 
-				{
-					//Application.console.log(">> Response text:" + xhr.responseText);
-					
-					handleSuccess(xhr.responseText);
-					return;
-				}
-				// If we're not still waiting for a response and we haven't had a successful
-				// outcome then try again...
-				if (!loggedOut)
-				{
-					 makeXhr(url, onSuccess, onError);
-				}
+                else if (xhr.status == 0)
+                {
+                    setTimeout(function() {
+                        makeXhr(url, onSuccess, onError)
+                    }, 1000);
+                }
+                else
+                {
+                    handleError();
+                }
 			}
 
 			// Override the default error handling function to call the one passed as

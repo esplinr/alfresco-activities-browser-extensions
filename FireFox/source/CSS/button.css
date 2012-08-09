@@ -1,5 +1,9 @@
-#@ID_PREFIX@button  {
-    list-style-image: url("chrome://@PACKAGE_NAME@/content/alfresco19.png");
+.@ID_PREFIX@button  {
+    list-style-image: url("chrome://@PACKAGE_NAME@/content/@DEFAULT_ICON@");
+}
+
+.@ID_PREFIX@disabled-button  {
+    list-style-image: url("chrome://@PACKAGE_NAME@/content/@LOGGED_OUT_ICON@");
 }
 
 .alfreso-activities-panel {

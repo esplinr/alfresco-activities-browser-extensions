@@ -78,6 +78,8 @@ function @ID_PREFIX@getActivities()
 	Application.console.log("3");
 	function onSuccess(html) 
 	{
+        @ID_PREFIX@worker.button.classList.remove("@ID_PREFIX@disabled-button");  
+        @ID_PREFIX@worker.button.classList.add("@ID_PREFIX@button");
         var replaceString = "\"" + @ID_PREFIX@domain + "share/";
         html = html.replace(/"\/share\//g, replaceString);
 		@ID_PREFIX@setContent(html);
@@ -85,8 +87,11 @@ function @ID_PREFIX@getActivities()
 	function onError(error)
 	{
 		// Need to show some kind of failed icon
-		@ID_PREFIX@setContent("<html:span>Unable to load activities - please click icon to try again</html:span>");
-		Application.console.log("An error occurred getting the activities");  
+		@ID_PREFIX@setContent("<html:span>Unable to load activities - please ensure that you are <html:a href='" + @ID_PREFIX@domain + "share'>signed in</html:a> to Alfresco Share</html:span>");
+		Application.console.log("An error occurred getting the activities"); 
+        @ID_PREFIX@worker.badge.setAttribute("value", "X");     
+        @ID_PREFIX@worker.button.classList.remove("@ID_PREFIX@button");
+        @ID_PREFIX@worker.button.classList.add("@ID_PREFIX@disabled-button");        
 	}
     @ID_PREFIX@makeXhr(@ID_PREFIX@domain + "share/service/components/dashlets/activities/list?site=&mode=user&dateFilter=28&userFilter=others&activityFilter=", onSuccess, onError);
 	return true;
@@ -132,28 +137,31 @@ function @ID_PREFIX@makeXhr(url, onSuccess, onError)
 	        { 
                 return;
             }
-			else if (xhr.status == 401)
+			else if (xhr.status == 401 || xhr.status == 403)
 			{
 				// The user is not authenticated. Disable polling.
 				@ID_PREFIX@loggedOut = true;
+                handleError();
 			}
 			else if (xhr.status == 200)
 			{
 				@ID_PREFIX@loggedOut = false;
+                if (xhr.responseText) 
+                {
+                    handleSuccess(xhr.responseText);
+                    return;
+                }
 			}
-
-			// If there is response text then call the success function with the 
-			// contents of the response.
-            if (xhr.responseText) 
-	        {
-		        handleSuccess(xhr.responseText);
-		        return;
+            else if (xhr.status == 0)
+            {
+                window.setTimeout(function() {
+                    @ID_PREFIX@makeXhr(url, onSuccess, onError)
+                }, 1000);
             }
-			
-			// If we're not still waiting for a response and we haven't had a successful
-			// outcome then an error must have occurred so we need to call the supplied
-			// error handling function...
-            handleError();
+            else
+            {
+                handleError();
+            }            
         }
 
 		// Override the default error handling function to call the one passed as

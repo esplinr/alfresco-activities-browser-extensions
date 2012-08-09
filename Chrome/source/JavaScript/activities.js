@@ -48,7 +48,7 @@ function getActivities()
   function onError()
   {
 	// Need to show some kind of failed icon
-	setContent("<span>Unable to load activities - please ensure that you <a href='" + domain + "share'>signed in</a> to Alfresco Share</span>");
+	setContent("<span>Unable to load activities - please ensure that you are <a href='" + domain + "share'>signed in</a> to Alfresco Share</span>");
 	console.error("An error occurred getting the activities");  
   }
   chrome.extension.getBackgroundPage().makeXhr(domain + "share/service/components/dashlets/activities/list?site=&mode=user&dateFilter=28&userFilter=others&activityFilter=", onSuccess, onError);

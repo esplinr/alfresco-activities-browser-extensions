@@ -103,6 +103,8 @@
                 <filter token="HTTPS_DOMAIN" value="${https.domain}"/>
 				<filter token="PACKAGE_NAME" value="${application.package.name}"/>
 				<filter token="ID_PREFIX" value="${application.id.prefix}"/>
+                <filter token="DEFAULT_ICON" value="${default_icon}"/>
+                <filter token="LOGGED_OUT_ICON" value="${loggedOut_icon}"/>
 			</filterset>
 		</copy>
 		<copy todir="${assemble.content.dir}">

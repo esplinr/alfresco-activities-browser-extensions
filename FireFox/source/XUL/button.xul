@@ -19,7 +19,7 @@
 		<toolbarbutton id="@ID_PREFIX@button"
 					   label="Alfresco Activities"
 					   tooltiptext="Click to load recent activities on Alfresco"
-					   class="toolbarbutton-1 chromeclass-toolbar-additional alfresco-activities-button"
+					   class="toolbarbutton-1 chromeclass-toolbar-additional @ID_PREFIX@button"
 					   popup="@ID_PREFIX@activities">
 			<panel id="@ID_PREFIX@activities" onpopupshowing="@ID_PREFIX@getActivities();" position="after_end" width="450" height="300">
 				<iframe id="@ID_PREFIX@frame" class="alfresco_activities" type="content" width="450" height="300"></iframe>

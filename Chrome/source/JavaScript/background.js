@@ -207,7 +207,11 @@ function makeXhr(url, onSuccess, onError)
             console.log("0 response");
             window.setTimeout(function() {
                 makeXhr(url, onSuccess, onError)
-            }, 500);
+            }, 1000);
+        }
+        else
+        {
+            handleError();
         }
     }
 

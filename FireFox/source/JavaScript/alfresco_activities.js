@@ -26,7 +26,8 @@
     worker: null,
 	lastNotification:  null,
 	badge: null,
-	
+	button: null,
+    
     /**
      *
      */
@@ -34,6 +35,7 @@
     {
 		window.content.localStorage.@ID_PREFIX@lastNotificationSize = -1; // No notifications so far
 		this.badge = document.getElementById("@ID_PREFIX@button-desc");
+        this.button = document.getElementById("@ID_PREFIX@button");
 	    this.worker = new Worker("chrome://@PACKAGE_NAME@/content/background.js");
 		var self = this;  
 		this.worker.onmessage = function(event) {  
@@ -62,6 +64,8 @@
 				if (this.badge)
 				{
 				    this.badge.setAttribute("value", unreadPosts);
+                    this.button.classList.remove("@ID_PREFIX@disabled-button");
+                    this.button.classList.add("@ID_PREFIX@button");
 				}
 	        }
 		}
@@ -70,6 +74,12 @@
 		    if (event.data.error)
 		    {
 			    Application.console.log("Error: " + e);
+                if (this.badge)
+				{
+                    this.badge.setAttribute("value", "X");
+                    this.button.classList.remove("@ID_PREFIX@button");
+                    this.button.classList.add("@ID_PREFIX@disabled-button");
+                }
 			}
 		}
 	},
