@@ -43,170 +43,178 @@ var loggedOut = false;
 lastNotification = null;
 
 function init() {
-  localStorage.lastNotificationSize = -1; // No notifications so far
-  startRequest();
+    localStorage.lastNotificationSize = -1; // No notifications so far
+    startRequest();
 }
 
 function startRequest() {
-  checkActivities(
-    function(response) 
-	{
-	
-	  var json = JSON.parse(response);
-	  var unreadPosts = 0;  
-	  if (json.length > 0)
-	  {
-	    var latestPost = json[0].id;
-	    localStorage.latestPost = latestPost;
-	    if (!localStorage.lastAcknowledgedPost)
-	    {
-	       localStorage.lastAcknowledgedPost = latestPost;
-	    }
-	  
-	    if (latestPost != localStorage.lastAcknowledgedPost)
-	    {
-	      // There are new posts... let's count how many...
-		  for (unreadPosts=1; unreadPosts<json.length; unreadPosts++)
-	      {
-		    if (json[unreadPosts].id == localStorage.lastAcknowledgedPost)
-		    {
-		      unreadPosts;
-		      break;
-		    }
-		  }
+    checkActivities(
+        function(response) 
+        {
+            var json = JSON.parse(response);
+            var unreadPosts = 0;  
+            if (json.length > 0)
+            {
+                var latestPost = json[0].id;
+                localStorage.latestPost = latestPost;
+                if (!localStorage.lastAcknowledgedPost)
+                {
+                    localStorage.lastAcknowledgedPost = latestPost;
+                }
+            
+                if (latestPost != localStorage.lastAcknowledgedPost)
+                {
+                    // There are new posts... let's count how many...
+                    for (unreadPosts=1; unreadPosts<json.length; unreadPosts++)
+                    {
+                        if (json[unreadPosts].id == localStorage.lastAcknowledgedPost)
+                        {
+                            unreadPosts;
+                            break;
+                        }
+                    }
 
-          // Only show a notification if there are more activities since the last notification...		  
-		  if (unreadPosts > localStorage.lastNotificationSize)
-		  {
-		    if (lastNotification) 
-			{
-              lastNotification.cancel();
+                    // Only show a notification if there are more activities since the last notification...		  
+                    if (unreadPosts > localStorage.lastNotificationSize)
+                    {
+                        if (lastNotification) 
+                        {
+                            lastNotification.cancel();
+                        }
+                        // Handle single notification message...
+                        var msg = "There are " + unreadPosts + " updates that you've not seen.";
+                        if (unreadPosts == 1)
+                        {
+                            msg = "There is 1 update that you've not seen";
+                        }
+                        // Create a notification...
+                        var notification = webkitNotifications.createNotification(
+                                                chrome.extension.getURL("alfresco32.png"),  // icon url - can be relative
+                                                "New Alfresco Activities",  // notification title
+                                                msg  // notification body text
+                                            );
+                        notification.show();
+                        lastNotification = notification;
+                        localStorage.lastNotificationSize = unreadPosts;
+                    }
+                    chrome.browserAction.setBadgeText({"text": "" + unreadPosts});
+                }
+                else
+                {
+                    chrome.browserAction.setBadgeText({"text": "0"});
+                }
             }
-			
-			// Handle single notification message...
-			var msg = "There are " + unreadPosts + " updates that you've not seen.";
-			if (unreadPosts == 1)
-	        {
-			  msg = "There is 1 update that you've not seen";
-			}
-			
-		    // Create a notification...
-			var notification = webkitNotifications.createNotification(
-								 chrome.extension.getURL("alfresco32.png"),  // icon url - can be relative
-								 "New Alfresco Activities",  // notification title
-								 msg  // notification body text
-							   );
-			notification.show();
-			lastNotification = notification;
-   		    localStorage.lastNotificationSize = unreadPosts;
-	      }
-		  chrome.browserAction.setBadgeText({"text": "" + unreadPosts});
-	    }
-		else
-	    {
-		  chrome.browserAction.setBadgeText({"text": "0"});
-		}
-	  }
-	  scheduleRequest();
-    },
-    function() {
-	  // Need to show some kind of failed icon
-      scheduleRequest();
-    }
-  );
+            scheduleRequest();
+        },
+        function() {
+            // Need to show some kind of failed icon
+            scheduleRequest();
+        }
+    );
 }
-
-
 
 // This is stolen straight from the GMail checker...
 function scheduleRequest() {
-  if (requestTimerId) {
-    window.clearTimeout(requestTimerId);
-  }
-  var randomness = Math.random() * 2;
-  var exponent = Math.pow(2, requestFailureCount);
-  var multiplier = Math.max(randomness * exponent, 1);
-  var delay = Math.min(multiplier * pollIntervalMin, pollIntervalMax);
-  delay = Math.round(delay);
-  requestTimerId = window.setTimeout(startRequest, delay);
+    if (requestTimerId) {
+        window.clearTimeout(requestTimerId);
+    }
+    var randomness = Math.random() * 2;
+    var exponent = Math.pow(2, requestFailureCount);
+    var multiplier = Math.max(randomness * exponent, 1);
+    var delay = Math.min(multiplier * pollIntervalMin, pollIntervalMax);
+    delay = Math.round(delay);
+    requestTimerId = window.setTimeout(startRequest, delay);
 }
-
 
 function checkActivities(onSuccess, onError) 
 {
-  var suffix = "share/proxy/alfresco/api/activities/feed/user?format=json&exclUser=true";
-  if (domain == "https://my.alfresco.com/")
-  {
-      // This is a temporary hack for accessing the Cloud offering - we need to set the additional -default- tenant to 
-      // ensure that we don't get an error page back...
-      suffix = "share/-default-/proxy/alfresco/api/activities/feed/user?format=json&exclUser=true";
-  }
+    var suffix = "share/proxy/alfresco/api/activities/feed/user?format=json&exclUser=true";
+    if (domain == "https://my.alfresco.com/")
+    {
+        // This is a temporary hack for accessing the Cloud offering - we need to set the additional -default- tenant to 
+        // ensure that we don't get an error page back...
+        suffix = "share/-default-/proxy/alfresco/api/activities/feed/user?format=json&exclUser=true";
+    }
   
-  makeXhr(domain + suffix, onSuccess, onError);
+    makeXhr(domain + suffix, onSuccess, onError);
 }
 
 function makeXhr(url, onSuccess, onError)
 {
-  var xhr = new XMLHttpRequest();
-  var abortTimerId = window.setTimeout(function() 
-  {
-    xhr.abort();  // synchronously calls onreadystatechange
-  }, requestTimeout);
-
-  function handleSuccess(count) 
-  {
-    requestFailureCount = 0;
-    window.clearTimeout(abortTimerId);
-    if (onSuccess)
+    console.log("Making request");
+    var xhr = new XMLHttpRequest();
+    var abortTimerId = window.setTimeout(function() 
     {
-      onSuccess(count);
-	}
-  }
+        xhr.abort();  // synchronously calls onreadystatechange
+    }, requestTimeout);
 
-  var invokedErrorCallback = false;
-  function handleError() 
-  {
-    ++requestFailureCount;
-    window.clearTimeout(abortTimerId);
-    if (onError && !invokedErrorCallback)
-	{
-      onError();
-	}
-    invokedErrorCallback = true;
-  }
+    function handleSuccess(count) 
+    {
+        requestFailureCount = 0;
+        window.clearTimeout(abortTimerId);
+        if (onSuccess)
+        {
+            onSuccess(count);
+        }
+    }
+
+    var invokedErrorCallback = false;
+    function handleError() 
+    {
+        ++requestFailureCount;
+        window.clearTimeout(abortTimerId);
+        if (onError && !invokedErrorCallback)
+        {
+            onError();
+        }
+        invokedErrorCallback = true;
+    }
 
   try {
   
     xhr.onreadystatechange = function()
-	{
-      if (xhr.readyState != 4)
-	  {
-        return;
-      }
-	  else if (xhr.status == 401)
-	  {
-	      loggedOut = true;
-		  chrome.browserAction.setBadgeText({"text": "X"});
-	  }
-	  else if (xhr.status == 200)
-	  {
-	      loggedOut = false;
-	  }
-
-      if (xhr.responseText) 
-	  {
-		handleSuccess(xhr.responseText);
-		return;
-      }
-      if (!loggedOut)
-	  {
-	     makeXhr(url, onSuccess, onError);
-	  }
+    {
+        if (xhr.readyState != 4)
+        {
+            return;
+        }
+        else if (xhr.status == 401 || xhr.status == 403)
+        {
+            console.log(xhr.status + " response");
+            loggedOut = true;
+            chrome.browserAction.setBadgeText({"text": "X"});
+            chrome.browserAction.setIcon({path:"@LOGGED_OUT_ICON@"});
+            
+            // There is no benefit to calling handle success on a 401, so we should always call handleError...
+            // This will maintain the scheduled polling for background activities and also allow us to set 
+            // a more sensible error message when actioned from the extension button...
+            handleError();
+        }
+        else if (xhr.status == 200)
+        {
+            console.log("200 response");
+            loggedOut = false;
+            chrome.browserAction.setIcon({path:"@DEFAULT_ICON@"});
+            if (xhr.responseText) 
+            {
+                handleSuccess(xhr.responseText);
+                return;
+            }            
+        }
+        else if (xhr.status == 0)
+        {
+            // If we've had neither a 200 or a 401 then we need to try again.
+            console.log("0 response");
+            window.setTimeout(function() {
+                makeXhr(url, onSuccess, onError)
+            }, 500);
+        }
     }
 
     xhr.onerror = function(error) 
-	{
-      handleError();
+    {
+        console.log("XHR error");
+        handleError();
     }
 
     xhr.open("GET", url, true);
@@ -214,8 +222,7 @@ function makeXhr(url, onSuccess, onError)
   } 
   catch(e) 
   {
-    console.error("Failed to load activities");
-    handleError();
+        handleError();
   }
 }
 

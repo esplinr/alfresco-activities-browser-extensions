@@ -153,6 +153,12 @@
 		</antcall>
 	</target>
 	
+	<target name="LocalExtension">
+	    <antcall target="dist">
+		    <param name="props" value="localhost.build.properties"/>
+		</antcall>
+	</target>
+	
 	<target name="PublishCloudExtension" depends="CloudExtension">
 	    <antcall target="publish">
 		    <param name="props" value="cloud.build.properties"/>

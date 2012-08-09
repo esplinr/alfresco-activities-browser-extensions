@@ -33,6 +33,7 @@
                 <filter token="HTTP_DOMAIN" value="${http.domain}"/>
                 <filter token="HTTPS_DOMAIN" value="${https.domain}"/>
 				<filter token="UPDATE_URL" value="${update_url}"/>
+                <filter token="DEFAULT_ICON" value="${default_icon}"/>
 			</filterset>
 		</copy>
         <copy file="${common.js.dir}/jquery-1.7.2.min.js" todir="${assemble.folder}"/>
@@ -43,6 +44,8 @@
             <filterset>
                 <filter token="HTTP_DOMAIN" value="${http.domain}"/>
                 <filter token="HTTPS_DOMAIN" value="${https.domain}"/>
+                <filter token="DEFAULT_ICON" value="${default_icon}"/>
+                <filter token="LOGGED_OUT_ICON" value="${loggedOut_icon}"/>
 			</filterset>
 		</copy>
 		<copy todir="${assemble.folder}">
@@ -90,6 +93,12 @@
 	<target name="TSExtension">
 	    <antcall target="dist">
 		    <param name="props" value="ts.build.properties"/>
+		</antcall>
+	</target>
+	
+	<target name="LocalExtension">
+	    <antcall target="dist">
+		    <param name="props" value="localhost.build.properties"/>
 		</antcall>
 	</target>
 	
